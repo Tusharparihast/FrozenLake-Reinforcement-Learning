@@ -76,3 +76,47 @@ def q_learning_update(Q, state, action, reward, next_state,
 
     return Q
 
+
+def sarsa_update(Q, state, action, reward, next_state, next_action,
+                 terminated, alpha, gamma):
+    """
+    Apply one tabular SARSA update.
+
+    SARSA is on-policy: its target uses the Q-value of the actual
+    next action selected by the current policy.
+
+    Parameters
+    ----------
+    Q : numpy.ndarray
+        Q-table with shape (number_of_states, number_of_actions).
+    state : int
+        State before taking the current action.
+    action : int
+        Action taken in the current state.
+    reward : float
+        Reward received after taking the action.
+    next_state : int
+        State reached after taking the action.
+    next_action : int or None
+        Action selected in next_state. Not used for terminal transitions.
+    terminated : bool
+        Whether the transition ended the episode.
+    alpha : float
+        Learning rate.
+    gamma : float
+        Discount factor.
+
+    Returns
+    -------
+    numpy.ndarray
+        Updated Q-table.
+    """
+    if terminated:
+        target = reward
+    else:
+        target = reward + gamma * Q[next_state, next_action]
+
+    td_error = target - Q[state, action]
+    Q[state, action] += alpha * td_error
+
+    return Q
