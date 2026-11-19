@@ -31,3 +31,9 @@ def test_q_learning_update_terminal_transition():
     # Terminal transitions do not include a discounted future Q-value.
     # updated value = 0.2 + 0.1 * (0.5 - 0.2) = 0.23
     assert np.isclose(updated_Q[0, 1], 0.23)
+
+
+if __name__ == "__main__":
+    test_q_learning_update_non_terminal_transition()
+    test_q_learning_update_terminal_transition()
+    print("Both Q-learning update tests passed.")
