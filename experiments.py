@@ -90,7 +90,17 @@ def _moving_average(values, window):
 
 def _learning_curve_figure(curves, episodes):
     window = min(MOVING_AVERAGE_WINDOW, episodes)
-    fig, ax = plt.subplots(figsize=(10, 5.8))
+    fig = plt.figure(figsize=(8.27, 11.69))
+    fig.text(0.08, 0.94, "1. TRAINING PERFORMANCE",
+             fontsize=17, weight="bold")
+    fig.text(
+        0.08, 0.89,
+        f"Each method was trained for {episodes:,} episodes using five "
+        f"independent random seeds ({', '.join(map(str, SEEDS))}). "
+        "The learning rate for this comparison was 0.1.",
+        fontsize=10.5, wrap=True, va="top",
+    )
+    ax = fig.add_axes([0.10, 0.39, 0.82, 0.40])
 
     for algorithm, label in (
         ("q_learning", "Q-learning"),
@@ -108,21 +118,38 @@ def _learning_curve_figure(curves, episodes):
         ax.fill_between(x, mean - std, mean + std, alpha=0.18)
 
     ax.set(
-        title=f"FrozenLake learning curves ({len(SEEDS)} seeds)",
+        title="Mean learning curve with variation across seeds",
         xlabel="Episode",
-        ylabel=f"Success rate (moving average, {window} episodes)",
+        ylabel=f"Success rate ({window}-episode moving average)",
         ylim=(0, 1),
     )
     ax.grid(alpha=0.25)
     ax.legend()
-    fig.tight_layout()
+    fig.text(
+        0.10, 0.29,
+        "The plotted line is the mean moving success rate across the five "
+        "seeds. The shaded region represents one standard deviation. "
+        "Differences between the curves show how the learning strategy "
+        "and exploration behaviour affect progress.",
+        fontsize=10.5, wrap=True, va="top", linespacing=1.5,
+    )
     return fig
 
 
 def _alpha_sweep_figure(alpha_summary):
     x = np.arange(len(ALPHAS))
     width = 0.36
-    fig, ax = plt.subplots(figsize=(9.5, 5.5))
+    fig = plt.figure(figsize=(8.27, 11.69))
+    fig.text(0.08, 0.94, "2. LEARNING-RATE EXPERIMENT",
+             fontsize=17, weight="bold")
+    fig.text(
+        0.08, 0.89,
+        "Five learning rates (0.01, 0.05, 0.1, 0.3, and 0.7) were evaluated "
+        "with the same five random seeds. Each bar shows the mean success "
+        "rate over the final 1,000 episodes; error bars show standard deviation.",
+        fontsize=10.5, wrap=True, va="top",
+    )
+    ax = fig.add_axes([0.11, 0.42, 0.80, 0.36])
 
     for offset, algorithm, label in (
         (-width / 2, "q_learning", "Q-learning"),
@@ -136,16 +163,23 @@ def _alpha_sweep_figure(alpha_summary):
         )
 
     ax.set(
-        title="Effect of learning rate on final success",
+        title="Final success rate by learning rate",
         xlabel="Learning rate (alpha)",
-        ylabel="Success rate over the final 1,000 episodes",
+        ylabel="Success rate over final 1,000 episodes",
         xticks=x,
         xticklabels=[str(alpha) for alpha in ALPHAS],
         ylim=(0, 1),
     )
     ax.grid(axis="y", alpha=0.25)
     ax.legend()
-    fig.tight_layout()
+    fig.text(
+        0.10, 0.30,
+        "The learning rate determines how much each new temporal-difference "
+        "target changes the existing estimate. Very small values can learn "
+        "slowly; very large values can make learning unstable. The results "
+        "show how these effects differ between the two algorithms.",
+        fontsize=10.5, wrap=True, va="top", linespacing=1.5,
+    )
     return fig
 
 
@@ -172,126 +206,48 @@ def _write_report(curves, alpha_summary, seed0_rate, episodes):
                  fontsize=23, weight="bold")
         fig.text(0.08, 0.85, "Lab 1 — Tabular Temporal-Difference Learning",
                  fontsize=13)
-        page1 = [
-            ("Student", "Name: ______________________________"),
-            ("Objective",
+        fig.text(0.08, 0.80, "Student: ______________________________",
+                 fontsize=10.5)
+
+        sections = [
+            (0.73, "Objective",
              "Implement and compare two tabular temporal-difference methods "
              "on the slippery 8×8 FrozenLake environment."),
-            ("Environment",
-             "The agent observes one of 64 discrete states and selects one of "
-             "four actions: LEFT, DOWN, RIGHT, or UP. The transition is "
-             "stochastic because the lake is slippery. Reaching the goal "
-             "gives a reward of +1; other transitions give 0. A hole or the "
-             "goal ends an episode. Episodes are limited to 200 steps."),
-            ("Learning task",
-             "The objective is to learn action values that guide the agent "
-             "from the start tile to the goal while accounting for uncertain "
-             "movement. Performance is measured by the fraction of successful "
-             "episodes."),
-            ("Methods",
-             "Q-learning is off-policy and bootstraps from the maximum "
-             "estimated next-state action value. SARSA is on-policy and "
-             "bootstraps from the next action actually selected by its policy."),
-            ("Update equations",
-             "Q-learning: Q(s,a) ← Q(s,a) + α[r + γ maxₐ′ Q(s′,a′) − Q(s,a)]\n"
-             "SARSA: Q(s,a) ← Q(s,a) + α[r + γ Q(s′,a′) − Q(s,a)]\n"
-             "For true terminal transitions, the target is the immediate reward "
-             "and no future value is added."),
+            (0.61, "Environment",
+             "The agent observes one of 64 states and selects one of four "
+             "actions. Movement is stochastic because the lake is slippery. "
+             "Reaching the goal gives +1 reward; other transitions give 0. "
+             "A hole or the goal ends an episode. A 200-step time limit is "
+             "used to allow longer trajectories."),
+            (0.43, "Learning task",
+             "The agent must learn action values from trial-and-error "
+             "interaction. Performance is evaluated using the proportion of "
+             "episodes in which the goal is reached."),
+            (0.30, "Update rules",
+             "Q-learning is off-policy and uses the maximum next-state value:\n"
+             "Q(s,a) ← Q(s,a) + α[r + γ maxₐ′ Q(s′,a′) − Q(s,a)]\n\n"
+             "SARSA is on-policy and uses the next action selected by the policy:\n"
+             "Q(s,a) ← Q(s,a) + α[r + γ Q(s′,a′) − Q(s,a)]\n\n"
+             "For true terminal transitions, the target is the immediate reward."),
         ]
-        y = 0.78
-        for heading, body in page1:
+        for y, heading, body in sections:
             fig.text(0.08, y, heading, fontsize=13, weight="bold", va="top")
             fig.text(0.08, y - 0.035, body, fontsize=10.5, va="top",
-                     wrap=True, linespacing=1.45)
-            y -= 0.12 if heading in ("Student", "Objective", "Learning task") else 0.15
-        fig.text(0.08, 0.06, "Implementation and figures are generated by this repository's experiment script.",
+                     wrap=True, linespacing=1.5)
+
+        fig.text(0.08, 0.06,
+                 "The implementation and the numerical results are generated independently in this repository.",
                  fontsize=8, color="dimgray")
         pdf.savefig(fig)
         plt.close(fig)
 
-        # Page 2: experiment design and learning curves.
-        fig = plt.figure(figsize=(8.27, 11.69))
-        fig.text(0.08, 0.94, "1. TRAINING PERFORMANCE", fontsize=17, weight="bold")
-        fig.text(
-            0.08, 0.89,
-            f"Each method was trained for {episodes:,} episodes using five "
-            f"independent random seeds ({', '.join(map(str, SEEDS))}). "
-            f"The learning rate for this comparison was 0.1.",
-            fontsize=10.5, wrap=True, va="top",
-        )
-        ax = fig.add_axes([0.10, 0.43, 0.82, 0.37])
-        for source_ax in learning_fig.axes:
-            for line in source_ax.lines:
-                ax.plot(line.get_xdata(), line.get_ydata(),
-                        label=line.get_label(), linewidth=1.8)
-            for collection in source_ax.collections:
-                verts = collection.get_paths()
-                if verts:
-                    # Recreate the confidence band using the original collection.
-                    ax.add_collection(collection)
-        ax.set(
-            title="Mean learning curve with variation across seeds",
-            xlabel="Episode",
-            ylabel=f"Success rate ({min(MOVING_AVERAGE_WINDOW, episodes)}-episode average)",
-            ylim=(0, 1),
-        )
-        ax.grid(alpha=0.25)
-        ax.legend()
-        fig.text(
-            0.10, 0.34,
-            "The plotted line is the mean moving success rate across the five "
-            "seeds. The shaded region represents one standard deviation. "
-            "Differences between the two curves show how the learning strategy "
-            "and its exploration behaviour affect progress.",
-            fontsize=10.5, wrap=True, va="top", linespacing=1.5,
-        )
-        pdf.savefig(fig)
-        plt.close(fig)
+        # Page 2: learning curves.
+        pdf.savefig(learning_fig)
+        plt.close(learning_fig)
 
         # Page 3: learning-rate comparison.
-        fig = plt.figure(figsize=(8.27, 11.69))
-        fig.text(0.08, 0.94, "2. LEARNING-RATE EXPERIMENT", fontsize=17, weight="bold")
-        fig.text(
-            0.08, 0.89,
-            "The learning rate controls how strongly each new temporal-difference "
-            "target changes the current estimate. Five values were compared: "
-            "0.01, 0.05, 0.1, 0.3, and 0.7. Every setting was evaluated with "
-            "the same five seeds.",
-            fontsize=10.5, wrap=True, va="top",
-        )
-        ax = fig.add_axes([0.11, 0.44, 0.80, 0.35])
-        for container in alpha_fig.axes[0].containers:
-            ax.add_container(container)
-        ax.set(
-            title="Final success rate by learning rate",
-            xlabel="Learning rate (alpha)",
-            ylabel="Success rate over final 1,000 episodes",
-            xticks=np.arange(len(ALPHAS)),
-            xticklabels=[str(alpha) for alpha in ALPHAS],
-            ylim=(0, 1),
-        )
-        ax.grid(axis="y", alpha=0.25)
-        # Recreate the two bar series with their error bars.
-        width = 0.36
-        for offset, algorithm, label in (
-            (-width / 2, "q_learning", "Q-learning"),
-            (width / 2, "sarsa", "SARSA"),
-        ):
-            means = [alpha_summary[(algorithm, a)][0] for a in ALPHAS]
-            stds = [alpha_summary[(algorithm, a)][1] for a in ALPHAS]
-            ax.bar(np.arange(len(ALPHAS)) + offset, means, width,
-                   yerr=stds, capsize=4, label=label)
-        ax.legend()
-        fig.text(
-            0.10, 0.34,
-            f"At alpha = 0.1, Q-learning achieved {q_mean:.3f} ± {q_std:.3f} "
-            f"and SARSA achieved {s_mean:.3f} ± {s_std:.3f} mean success "
-            "across seeds. The error bars show the standard deviation, "
-            "which indicates how sensitive the result was to the random seed.",
-            fontsize=10.5, wrap=True, va="top", linespacing=1.5,
-        )
-        pdf.savefig(fig)
-        plt.close(fig)
+        pdf.savefig(alpha_fig)
+        plt.close(alpha_fig)
 
         # Page 4: findings and conclusion.
         fig = plt.figure(figsize=(8.27, 11.69))
