@@ -1,0 +1,18 @@
+Environment: FrozenLake-v1 (8x8, slippery, 200-step limit)
+Episodes per run: 100000
+Seeds: [0, 1, 2, 3, 4]
+Gamma: 0.99; epsilon: 1.0 -> 0.01; decay fraction: 0.8
+
+Q-learning seed 0, final 1,000 episodes: 0.822 (PASS; target >= 0.700)
+
+Mean success rate over final 1,000 episodes (mean +/- std across seeds):
+q_learning alpha=0.01: 0.834 +/- 0.011
+q_learning alpha=0.05: 0.810 +/- 0.014
+q_learning alpha=0.1 : 0.807 +/- 0.011
+q_learning alpha=0.3 : 0.747 +/- 0.015
+q_learning alpha=0.7 : 0.605 +/- 0.022
+sarsa      alpha=0.01: 0.809 +/- 0.015
+sarsa      alpha=0.05: 0.814 +/- 0.019
+sarsa      alpha=0.1 : 0.808 +/- 0.017
+sarsa      alpha=0.3 : 0.732 +/- 0.018
+sarsa      alpha=0.7 : 0.449 +/- 0.029
