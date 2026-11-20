@@ -1,0 +1,20 @@
+Settings: 500 episodes, seeds [0, 1, 2, 3, 4]
+Task 4 check (baseline, seed 0): best 100-episode average 188.5, needs 400; Q-values finite True -> FAIL
+
+Baseline (sync every 500 steps)
+  seed 0: best 100-ep average  188.5, first reaches 475 at episode never, final eval return  500.0, max |mean max-Q|     65.3, Q finite True
+  seed 1: best 100-ep average  176.0, first reaches 475 at episode never, final eval return  157.6, max |mean max-Q|     60.8, Q finite True
+  seed 2: best 100-ep average  262.8, first reaches 475 at episode never, final eval return  500.0, max |mean max-Q|     91.7, Q finite True
+  seed 3: best 100-ep average  337.1, first reaches 475 at episode never, final eval return  496.4, max |mean max-Q|     97.0, Q finite True
+  seed 4: best 100-ep average  398.7, first reaches 475 at episode never, final eval return  252.8, max |mean max-Q|     89.7, Q finite True
+  best 100-ep average: mean 272.6, std 85.5
+  first reaches 475: no seed
+
+No target network (sync every step)
+  seed 0: best 100-ep average  207.0, first reaches 475 at episode never, final eval return  248.4, max |mean max-Q|  20844.6, Q finite True
+  seed 1: best 100-ep average  293.5, first reaches 475 at episode never, final eval return    9.0, max |mean max-Q|  15125.7, Q finite True
+  seed 2: best 100-ep average  244.1, first reaches 475 at episode never, final eval return    9.0, max |mean max-Q|   9388.3, Q finite True
+  seed 3: best 100-ep average  227.4, first reaches 475 at episode never, final eval return  222.6, max |mean max-Q|   6612.8, Q finite True
+  seed 4: best 100-ep average  174.2, first reaches 475 at episode never, final eval return    9.0, max |mean max-Q|  94940.0, Q finite True
+  best 100-ep average: mean 229.2, std 39.7
+  first reaches 475: no seed
